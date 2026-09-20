@@ -416,9 +416,10 @@ st.markdown("""
 
 
 # Initialize Workflow in Session State
-@st.cache_resource
 def get_workflow():
-    return ComplianceWorkflow()
+    if "workflow_instance" not in st.session_state or st.session_state.workflow_instance is None:
+        st.session_state.workflow_instance = ComplianceWorkflow()
+    return st.session_state.workflow_instance
 
 workflow = get_workflow()
 
@@ -473,11 +474,12 @@ with st.expander("⚙️ Agent Settings & API Key Configuration", expanded=False
 
 # Define Streamlit Callbacks (Ensures session_state widget keys are modified before widget instantiation)
 def run_preset_cb(text: str, category: str):
+    wf = get_workflow()
     st.session_state.input_text = text
     st.session_state["product_desc_textarea"] = text
     st.session_state.selected_category = category
-    st.session_state.state = workflow.create_initial_state(text, category=category)
-    st.session_state.state = workflow.step(st.session_state.state)
+    st.session_state.state = wf.create_initial_state(text, category=category)
+    st.session_state.state = wf.step(st.session_state.state)
 
 
 def reset_agent_cb():
@@ -493,14 +495,16 @@ def submit_answer_cb():
     ans = st.session_state.get("clarification_answer_input", "")
     curr_state = st.session_state.get("state")
     if ans and ans.strip() and curr_state:
-        st.session_state.state = workflow.answer_question(curr_state, ans)
+        wf = get_workflow()
+        st.session_state.state = wf.answer_question(curr_state, ans)
         st.session_state["clarification_answer_input"] = ""
 
 
 def skip_answer_cb():
     curr_state = st.session_state.get("state")
     if curr_state:
-        st.session_state.state = workflow.answer_question(curr_state, "Not specified")
+        wf = get_workflow()
+        st.session_state.state = wf.answer_question(curr_state, "Not specified")
         st.session_state["clarification_answer_input"] = ""
 
 
@@ -510,8 +514,9 @@ def run_agent_cb():
         sel_cat = st.session_state.get("selected_category", "Auto-Detect")
         chosen_cat = sel_cat if sel_cat != "Auto-Detect" else "General"
         st.session_state.input_text = desc
-        st.session_state.state = workflow.create_initial_state(desc, category=chosen_cat)
-        st.session_state.state = workflow.step(st.session_state.state)
+        wf = get_workflow()
+        st.session_state.state = wf.create_initial_state(desc, category=chosen_cat)
+        st.session_state.state = wf.step(st.session_state.state)
 
 
 # Quick Preset Scenarios Bar
