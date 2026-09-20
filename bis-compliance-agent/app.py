@@ -327,7 +327,8 @@ st.markdown("""
     }
 
     /* Form Labels & Widget Labels */
-    label, label p, label[data-testid="stWidgetLabel"], label[data-testid="stWidgetLabel"] p, .stTextArea label, .stTextInput label {
+    /* Form Labels & Widget Labels */
+    label, label p, label[data-testid="stWidgetLabel"], label[data-testid="stWidgetLabel"] p, .stTextArea label, .stTextInput label, .stSelectbox label {
         color: #1E1B4B !important;
         font-weight: 700 !important;
         font-size: 1.02rem !important;
@@ -335,17 +336,80 @@ st.markdown("""
         margin-bottom: 6px !important;
     }
 
-    /* Inputs and Textareas */
-    .stTextArea textarea, .stTextInput input {
+    /* HIGH CONTRAST INPUT TEXT, SELECTBOX & PLACEHOLDERS */
+    .stTextInput input, .stTextArea textarea, div[data-baseweb="input"] input, div[data-baseweb="textarea"] textarea, div[data-baseweb="select"] > div {
         background-color: #FFFFFF !important;
         color: #1E1B4B !important;
-        border: 2px solid #C084FC !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        border: 2px solid #A855F7 !important;
         border-radius: 10px !important;
-        font-family: 'Rubik', sans-serif !important;
     }
-    .stTextArea textarea:focus, .stTextInput input:focus {
-        border-color: #A855F7 !important;
-        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2) !important;
+    .stTextInput input::placeholder, .stTextArea textarea::placeholder, div[data-baseweb="input"] input::placeholder, div[data-baseweb="textarea"] textarea::placeholder {
+        color: #4C1D95 !important;
+        opacity: 0.85 !important;
+        font-weight: 600 !important;
+    }
+    .stTextArea textarea:focus, .stTextInput input:focus, div[data-baseweb="select"] > div:focus {
+        border-color: #9333EA !important;
+        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25) !important;
+    }
+
+    /* STREAMLIT ALERT & NOTIFICATION HIGH CONTRAST STYLING */
+    div[data-testid="stAlert"], .stAlert, div[role="alert"] {
+        background-color: #FEF3C7 !important; /* Soft warm amber for warnings */
+        border: 2px solid #F59E0B !important;
+        border-radius: 12px !important;
+        color: #78350F !important; /* Deep dark amber text */
+        font-weight: 700 !important;
+    }
+    div[data-testid="stAlert"] p, .stAlert p, div[role="alert"] p, div[data-testid="stAlert"] div, .stAlert div {
+        color: #78350F !important;
+        font-weight: 700 !important;
+        font-size: 0.98rem !important;
+    }
+
+    /* 8. MOBILE RESPONSIVENESS & ADAPTIVE LAYOUTS */
+    @media (max-width: 768px) {
+        .main .block-container {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+            padding-top: 0.5rem !important;
+        }
+        .main-header {
+            font-size: 1.8rem !important;
+        }
+        .sub-header {
+            font-size: 0.9rem !important;
+        }
+        .agent-brand {
+            flex-wrap: wrap !important;
+        }
+        .status-badge {
+            font-size: 0.75rem !important;
+            padding: 4px 10px !important;
+        }
+        .preset-container {
+            padding: 12px 14px !important;
+        }
+        .recommended-box {
+            padding: 18px !important;
+        }
+        .recommended-box h2 {
+            font-size: 1.35rem !important;
+        }
+        .recommended-box h4 {
+            font-size: 1rem !important;
+        }
+        .stButton > button {
+            width: 100% !important;
+            margin-bottom: 6px !important;
+        }
+        div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -363,6 +427,12 @@ if "state" not in st.session_state:
 
 if "input_text" not in st.session_state:
     st.session_state.input_text = ""
+
+if "selected_category" not in st.session_state:
+    st.session_state.selected_category = "Auto-Detect"
+
+if "product_desc_textarea" not in st.session_state:
+    st.session_state.product_desc_textarea = ""
 
 
 # Top Header & Agent Status Bar
@@ -401,6 +471,49 @@ with st.expander("⚙️ Agent Settings & API Key Configuration", expanded=False
         st.success("API Key applied to runtime environment.")
 
 
+# Define Streamlit Callbacks (Ensures session_state widget keys are modified before widget instantiation)
+def run_preset_cb(text: str, category: str):
+    st.session_state.input_text = text
+    st.session_state["product_desc_textarea"] = text
+    st.session_state.selected_category = category
+    st.session_state.state = workflow.create_initial_state(text, category=category)
+    st.session_state.state = workflow.step(st.session_state.state)
+
+
+def reset_agent_cb():
+    st.session_state.input_text = ""
+    st.session_state["product_desc_textarea"] = ""
+    if "clarification_answer_input" in st.session_state:
+        st.session_state["clarification_answer_input"] = ""
+    st.session_state.selected_category = "Auto-Detect"
+    st.session_state.state = None
+
+
+def submit_answer_cb():
+    ans = st.session_state.get("clarification_answer_input", "")
+    curr_state = st.session_state.get("state")
+    if ans and ans.strip() and curr_state:
+        st.session_state.state = workflow.answer_question(curr_state, ans)
+        st.session_state["clarification_answer_input"] = ""
+
+
+def skip_answer_cb():
+    curr_state = st.session_state.get("state")
+    if curr_state:
+        st.session_state.state = workflow.answer_question(curr_state, "Not specified")
+        st.session_state["clarification_answer_input"] = ""
+
+
+def run_agent_cb():
+    desc = st.session_state.get("product_desc_textarea", "")
+    if desc and desc.strip():
+        sel_cat = st.session_state.get("selected_category", "Auto-Detect")
+        chosen_cat = sel_cat if sel_cat != "Auto-Detect" else "General"
+        st.session_state.input_text = desc
+        st.session_state.state = workflow.create_initial_state(desc, category=chosen_cat)
+        st.session_state.state = workflow.step(st.session_state.state)
+
+
 # Quick Preset Scenarios Bar
 st.markdown('<div class="preset-container">', unsafe_allow_html=True)
 st.markdown('<div class="preset-title">🎯 Preset Product Evaluation Scenarios</div>', unsafe_allow_html=True)
@@ -408,39 +521,19 @@ st.markdown('<div class="preset-title">🎯 Preset Product Evaluation Scenarios<
 sc_col1, sc_col2, sc_col3, sc_col4, sc_col5 = st.columns(5)
 
 with sc_col1:
-    if st.button("🧸 Scenario 1: Toys", use_container_width=True):
-        st.session_state.input_text = "I manufacture plastic puzzles for children."
-        st.session_state.state = workflow.create_initial_state(st.session_state.input_text)
-        st.session_state.state = workflow.step(st.session_state.state)
-        st.rerun()
+    st.button("🧸 Scenario 1: Toys", on_click=run_preset_cb, args=("I manufacture plastic puzzles for children.", "Toys"), use_container_width=True)
 
 with sc_col2:
-    if st.button("⚡ Scenario 2: Electronics", use_container_width=True):
-        st.session_state.input_text = "I manufacture an electronic appliance for home use."
-        st.session_state.state = workflow.create_initial_state(st.session_state.input_text)
-        st.session_state.state = workflow.step(st.session_state.state)
-        st.rerun()
+    st.button("⚡ Scenario 2: Electronics", on_click=run_preset_cb, args=("I manufacture an electronic appliance for home use.", "Electronics"), use_container_width=True)
 
 with sc_col3:
-    if st.button("👕 Scenario 3: Textiles", use_container_width=True):
-        st.session_state.input_text = "I manufacture cotton garments."
-        st.session_state.state = workflow.create_initial_state(st.session_state.input_text)
-        st.session_state.state = workflow.step(st.session_state.state)
-        st.rerun()
+    st.button("👕 Scenario 3: Textiles", on_click=run_preset_cb, args=("I manufacture cotton garments.", "Textiles"), use_container_width=True)
 
 with sc_col4:
-    if st.button("🍱 Scenario 4: Food Packaging", use_container_width=True):
-        st.session_state.input_text = "I manufacture plastic containers used for food."
-        st.session_state.state = workflow.create_initial_state(st.session_state.input_text)
-        st.session_state.state = workflow.step(st.session_state.state)
-        st.rerun()
+    st.button("🍱 Scenario 4: Food Packaging", on_click=run_preset_cb, args=("I manufacture plastic containers used for food.", "Food Packaging"), use_container_width=True)
 
 with sc_col5:
-    if st.button("❓ Scenario 5: Vague Input", use_container_width=True):
-        st.session_state.input_text = "I make a product."
-        st.session_state.state = workflow.create_initial_state(st.session_state.input_text)
-        st.session_state.state = workflow.step(st.session_state.state)
-        st.rerun()
+    st.button("❓ Scenario 5: Vague Input", on_click=run_preset_cb, args=("I make a product.", "General"), use_container_width=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -454,10 +547,20 @@ with col_left:
         1. Product Information Input
     </h3>
     """, unsafe_allow_html=True)
+
+    cat_options = ["Auto-Detect", "Toys", "Electronics", "Textiles", "Food Packaging", "General"]
+    current_cat_idx = cat_options.index(st.session_state.get("selected_category", "Auto-Detect")) if st.session_state.get("selected_category") in cat_options else 0
+    selected_cat = st.selectbox(
+        "Select Product Sector / Category:",
+        options=cat_options,
+        index=current_cat_idx,
+        key="category_selectbox_widget",
+        help="Specify the target industry category or allow automatic classification."
+    )
+    st.session_state.selected_category = selected_cat
     
     product_desc = st.text_area(
         "Describe your manufactured product in detail:",
-        value=st.session_state.input_text,
         placeholder="e.g., I manufacture plastic puzzles for children under 3 years old, or LED lighting apparatus, or surgical face masks...",
         height=110,
         key="product_desc_textarea"
@@ -465,19 +568,9 @@ with col_left:
 
     col_btn1, col_btn2 = st.columns([2, 1])
     with col_btn1:
-        if st.button("🚀 Run Agent Compliance Assessment", type="primary", use_container_width=True):
-            if not product_desc.strip():
-                st.warning("Please enter a product description first.")
-            else:
-                st.session_state.input_text = product_desc
-                st.session_state.state = workflow.create_initial_state(product_desc)
-                st.session_state.state = workflow.step(st.session_state.state)
-                st.rerun()
+        st.button("🚀 Run Agent Compliance Assessment", type="primary", on_click=run_agent_cb, use_container_width=True)
     with col_btn2:
-        if st.button("🔄 Reset Agent", use_container_width=True):
-            st.session_state.input_text = ""
-            st.session_state.state = None
-            st.rerun()
+        st.button("🔄 Reset Agent", on_click=reset_agent_cb, use_container_width=True)
 
     state = st.session_state.state
 
@@ -500,16 +593,9 @@ with col_left:
         
         col_ans1, col_ans2 = st.columns([1.2, 0.8])
         with col_ans1:
-            if st.button("Submit Answer to Agent ➔", type="primary", use_container_width=True):
-                if user_ans.strip():
-                    st.session_state.state = workflow.answer_question(state, user_ans)
-                    st.rerun()
-                else:
-                    st.warning("Please type an answer or click Skip.")
+            st.button("Submit Answer to Agent ➔", type="primary", on_click=submit_answer_cb, use_container_width=True)
         with col_ans2:
-            if st.button("Skip Question", use_container_width=True):
-                st.session_state.state = workflow.answer_question(state, "Not specified")
-                st.rerun()
+            st.button("Skip Question", on_click=skip_answer_cb, use_container_width=True)
 
 
 with col_right:

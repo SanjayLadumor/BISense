@@ -21,9 +21,15 @@ class ProductAgent:
             qa_pairs.append(f"Q: {q}\nA: {a}")
         qa_context = "\n".join(qa_pairs)
 
+        # Build context with explicit category tag if specified
+        category_hint = state.get("category")
+        desc_with_hint = product_description
+        if category_hint and category_hint not in ["General", "Auto-Detect"]:
+            desc_with_hint = f"[Category: {category_hint}] {product_description}"
+
         # Extract structured product info via LLM or Fallback Engine
         product_info: ProductInfo = self.llm_service.extract_product_info(
-            product_description=product_description,
+            product_description=desc_with_hint,
             qa_context=qa_context
         )
 

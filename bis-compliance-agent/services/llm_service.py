@@ -175,22 +175,35 @@ class LLMService:
     def _heuristic_product_extraction(self, text: str, qa_context: str) -> ProductInfo:
         combined = f"{text} {qa_context}".lower()
 
-        # Category determination
+        # Category determination with explicit priority checks
         category = "General"
-        if any(w in combined for w in ["toy", "puzzle", "game", "doll", "play", "children", "child"]):
-            category = "Toys"
-        elif any(w in combined for w in ["electronic", "electric", "appliance", "battery", "laptop", "tv", "led", "wire", "plug", "power"]):
+        if any(tag in combined for tag in ["category: electronics", "[electronics]"]) or (
+            any(w in combined for w in ["electronic", "appliance", "laptop", "tv", "led", "wire", "plug", "power", "charger", "socket", "circuit", "battery"])
+            and not any(w in combined for w in ["toy", "children toy", "puzzle toy"])
+        ):
             category = "Electronics"
-        elif any(w in combined for w in ["textile", "cotton", "fabric", "garment", "cloth", "mask", "mask", "curtain", "towel", "sack"]):
+        elif any(tag in combined for tag in ["category: textiles", "[textiles]"]) or (
+            any(w in combined for w in ["textile", "cotton", "fabric", "garment", "cloth", "mask", "curtain", "towel", "sack", "sanitary", "napkin", "upholstery", "apparel"])
+            and not any(w in combined for w in ["toy", "doll"])
+        ):
             category = "Textiles"
-        elif any(w in combined for w in ["packag", "food contact", "bottle", "container", "pouch", "pet", "polyethylene", "polypropylene", "water bottle"]):
+        elif any(tag in combined for tag in ["category: food packaging", "[food packaging]"]) or (
+            any(w in combined for w in ["packag", "food contact", "bottle", "container", "pouch", "pet bottle", "polyethylene", "polypropylene", "water bottle", "beverage", "tiffin"])
+            and not any(w in combined for w in ["toy"])
+        ):
             category = "Food Packaging"
+        elif any(tag in combined for tag in ["category: toys", "[toys]"]) or (
+            any(w in combined for w in ["toy", "puzzle", "game", "doll", "play", "children", "child", "action figure", "finger paint", "swing", "slide"])
+        ):
+            category = "Toys"
+        elif any(w in combined for w in ["electric", "electrical"]):
+            category = "Electronics"
 
         # Electric determination
         electric = None
-        if any(w in combined for w in ["non-electric", "non electric", "manual", "battery-free", "without battery", "no power"]):
+        if any(w in combined for w in ["non-electric", "non electric", "manual", "battery-free", "without battery", "no power", "passive"]):
             electric = False
-        elif any(w in combined for w in ["electric", "electrical", "battery", "mains", "plug", "230v", "220v", "powered", "motor"]):
+        elif any(w in combined for w in ["electric", "electrical", "battery", "mains", "plug", "230v", "220v", "powered", "motor", "rechargeable", "charger", "adapter"]):
             electric = True
         elif category == "Toys" and "puzzle" in combined:
             electric = False
@@ -199,31 +212,48 @@ class LLMService:
 
         # Material detection
         material = "Unspecified"
-        if "plastic" in combined or "pvc" in combined or "hdpe" in combined or "pet" in combined:
+        if any(w in combined for w in ["plastic", "pvc", "hdpe", "pet", "polyethylene", "polypropylene", "vinyl"]):
             material = "Plastic"
-        elif "cotton" in combined:
+        elif any(w in combined for w in ["cotton", "yarn"]):
             material = "Cotton"
-        elif "metal" in combined or "steel" in combined:
+        elif any(w in combined for w in ["polyester", "nylon", "synthetic"]):
+            material = "Polyester"
+        elif any(w in combined for w in ["metal", "steel", "stainless steel", "aluminium", "brass", "copper"]):
             material = "Metal"
-        elif "wood" in combined:
+        elif any(w in combined for w in ["wood", "wooden"]):
             material = "Wood"
-        elif "glass" in combined:
+        elif any(w in combined for w in ["glass"]):
             material = "Glass"
 
         # Target user & intended use
-        target_user = "Children" if any(w in combined for w in ["child", "children", "baby", "kid"]) else "General public"
-        intended_use = "Play and learning" if category == "Toys" else "General use"
+        target_user = "Children" if any(w in combined for w in ["child", "children", "baby", "kid", "under 14", "under 3"]) else "General public"
+        if category == "Toys":
+            intended_use = "Play and learning"
+        elif category == "Textiles":
+            intended_use = "Clothing / Medical / Home Furnishings"
+        elif category == "Food Packaging":
+            intended_use = "Direct food or beverage contact"
+        elif category == "Electronics":
+            intended_use = "Power supply / Consumer operation"
+        else:
+            intended_use = "General use"
 
         # Subcategory
         subcategory = "General"
         if "puzzle" in combined:
             subcategory = "Puzzle"
-        elif "garment" in combined or "cloth" in combined:
+        elif any(w in combined for w in ["garment", "cloth", "apparel", "shirt"]):
             subcategory = "Apparel"
-        elif "container" in combined or "bottle" in combined:
+        elif any(w in combined for w in ["mask", "surgical mask"]):
+            subcategory = "Medical Textiles"
+        elif any(w in combined for w in ["container", "bottle", "jar", "pouch"]):
             subcategory = "Container"
-        elif "appliance" in combined:
+        elif any(w in combined for w in ["appliance", "iron", "mixer", "grinder", "heater"]):
             subcategory = "Home Appliance"
+        elif any(w in combined for w in ["led", "lamp", "lighting", "bulb"]):
+            subcategory = "Lighting"
+        elif any(w in combined for w in ["battery", "li-ion", "cell"]):
+            subcategory = "Batteries"
 
         # Missing information evaluation
         missing = []
@@ -231,7 +261,7 @@ class LLMService:
             missing.append("Electric or non-electric status")
         if category == "Toys" and not any(w in combined for w in ["age", "year", "month", "under"]):
             missing.append("Target age group")
-        if category == "Electronics" and not any(w in combined for w in ["mains", "battery", "voltage", "power"]):
+        if category == "Electronics" and not any(w in combined for w in ["mains", "battery", "voltage", "power", "watt", "ac", "dc"]):
             missing.append("Power source & voltage rating")
         if category == "Textiles" and material == "Unspecified":
             missing.append("Primary fibre/material composition")
@@ -245,7 +275,7 @@ class LLMService:
             intended_use=intended_use,
             target_user=target_user,
             electric=electric,
-            product_type=f"{'Electric' if electric else 'Non-electric' if electric is False else ''} {subcategory}".strip(),
+            product_type=f"{'Electric' if electric is True else 'Non-electric' if electric is False else ''} {subcategory}".strip(),
             missing_information=missing
         )
 
@@ -354,11 +384,12 @@ class LLMService:
 
         match_strength = "High" if valid_candidates[0][1] >= 0.5 else "Medium"
 
+        power_str = "Electric" if info.electric is True else "Non-electric" if info.electric is False else "Unspecified"
         return RecommendationResult(
             primary_standard=primary,
             additional_standards=additionals,
             match_strength=match_strength,
-            reason=f"Recommended {primary.standard_code} ({primary.title}) because the product matches category '{info.category}', material '{info.material}', and power profile ({'Electric' if info.electric else 'Non-electric'}).",
+            reason=f"Recommended {primary.standard_code} ({primary.title}) because the product matches category '{info.category}', material '{info.material}', and power profile ({power_str}).",
             evidence=evidence,
             excluded_candidates=excluded
         )

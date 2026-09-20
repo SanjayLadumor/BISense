@@ -9,7 +9,7 @@
     "electric": false,
     "description": "Specifies physical and mechanical safety requirements and testing methods for toys intended for use by children. Covers sharp edges, small parts, chocking hazards, structural strength, and warnings.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 9873 Part 2",
@@ -21,7 +21,7 @@
     "electric": false,
     "description": "Specifies categories of flammable materials that are prohibited in all toys and requirements on flammability of certain toys when exposed to a small source of ignition.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 9873 Part 3",
@@ -33,7 +33,7 @@
     "electric": null,
     "description": "Specifies maximum acceptable levels for the migration of elements such as Lead, Cadmium, Arsenic, Antimony, Barium, Chromium, Mercury, and Selenium from toy materials.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 9873 Part 4",
@@ -45,7 +45,7 @@
     "electric": false,
     "description": "Specifies requirements and test methods for activity toys for domestic family use intended for children under 14 years of age.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 9873 Part 7",
@@ -57,7 +57,7 @@
     "electric": false,
     "description": "Specifies requirements for substances and materials used in finger paints for children to protect health against ingestion or skin contact.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 9873 Part 9",
@@ -69,7 +69,7 @@
     "electric": false,
     "description": "Specifies concentration limits for Phthalate Esters (DEHP, DBP, BBP, DINP, DIDP, DNOP) in soft plastic toys and childcare articles.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 15644",
@@ -81,7 +81,7 @@
     "electric": true,
     "description": "Specifies electrical safety requirements for toys having at least one function dependent on electricity (batteries, transformer, solar cells).",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 13252 Part 1",
@@ -117,7 +117,7 @@
     "electric": true,
     "description": "Deals with safety of electrical appliances for household and similar purposes, rated voltage not exceeding 250V for single-phase.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 302 Part 2 Sec 3",
@@ -129,7 +129,7 @@
     "electric": true,
     "description": "Deals with safety of electric dry irons and steam irons for household and similar use.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 302 Part 2 Sec 201",
@@ -141,7 +141,7 @@
     "electric": true,
     "description": "Specifies safety requirements for electric food mixers, liquidizers, grinders, and juicers for household food preparation.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 16046 Part 1",
@@ -201,7 +201,7 @@
     "electric": true,
     "description": "Applies to plugs and fixed or portable socket-outlets for AC only, with or without earthing contact, rated voltage up to 250V.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 17565",
@@ -213,7 +213,7 @@
     "electric": false,
     "description": "Specifies requirements for single-use surgical face masks intended to limit transmission of infective agents from staff to patients during surgical procedures and other medical settings.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 17263",
@@ -225,7 +225,7 @@
     "electric": false,
     "description": "Specifies physical and performance characteristics for synthetic woven fabric nets used in agriculture, horticulture, and shade applications.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 17266",
@@ -237,7 +237,7 @@
     "electric": false,
     "description": "Specifies requirements for woven upholstery fabrics used in domestic and contract furniture coverings.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 15748",
@@ -249,7 +249,7 @@
     "electric": false,
     "description": "Specifies performance requirements for garments made from flexible materials designed to protect the user's body against heat and flame.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 17261",
@@ -261,7 +261,7 @@
     "electric": false,
     "description": "Prescribes safety, absorbency, pH value, and microbial limits for disposable sanitary napkins.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 1969 Part 1",
@@ -273,7 +273,7 @@
     "electric": false,
     "description": "Specifies strip procedure for determination of maximum force and elongation at maximum force of textile fabrics.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 10146",
@@ -285,7 +285,7 @@
     "electric": false,
     "description": "Specifies requirements for polyethylene plastic materials (polyethylene resins and compounds) intended for safe use in contact with food, pharmaceuticals, and potable water.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 10141",
@@ -297,7 +297,7 @@
     "electric": false,
     "description": "Lists permissible polymers, catalysts, emulsifiers, antioxidants, and processing aids allowed in manufacturing polyethylene for food contact.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 12252",
@@ -309,7 +309,7 @@
     "electric": false,
     "description": "Specifies requirements for Polyethylene Terephthalate (PET) plastics used for holding foodstuffs, pharmaceuticals, and beverages.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 9845",
@@ -321,7 +321,7 @@
     "electric": false,
     "description": "Prescribes methods of analysis for determining overall migration of constituents from plastics materials into liquid food simulants.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 16738",
@@ -333,7 +333,7 @@
     "electric": false,
     "description": "Specifies positive list of monomers, polymers, and additives suitable for manufacturing Polypropylene containers for food contact.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 15410",
@@ -345,7 +345,7 @@
     "electric": false,
     "description": "Specifies requirements for plastic and glass containers used for packing bottled mineral and drinking water.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   },
   {
     "standard_code": "IS 14452",
@@ -357,6 +357,6 @@
     "electric": null,
     "description": "Specifies constructional, performance, and safety requirements for household drinking water purifiers.",
     "source": "Bureau of Indian Standards",
-    "source_url": "https://www.services.bis.gov.in/php/BIS_2.0/bissearch/"
+    "source_url": "https://www.services.bis.gov.in"
   }
 ]

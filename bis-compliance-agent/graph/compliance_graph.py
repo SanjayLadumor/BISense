@@ -70,11 +70,11 @@ class ComplianceWorkflow:
 
         return builder.compile()
 
-    def create_initial_state(self, product_description: str) -> ComplianceState:
+    def create_initial_state(self, product_description: str, category: str = "General") -> ComplianceState:
         """Initialize empty state for a new product assessment session."""
         return {
             "product_description": product_description,
-            "category": "General",
+            "category": category if category else "General",
             "subcategory": "Unspecified",
             "material": "Unspecified",
             "intended_use": "General use",
