@@ -9,75 +9,343 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from graph.compliance_graph import ComplianceWorkflow, MAX_QUESTIONS
 from models.schemas import RecommendationResult
 
-# Page Config
+# Page Config - Forces sidebar collapsed by default
 st.set_page_config(
-    page_title="BIS Product Compliance Advisor Agent",
-    page_icon="🇮🇳",
+    page_title="BISense AI | BIS Product Compliance Advisor Agent",
+    page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# Custom Styling (Modern Dark Glassmorphism aesthetic)
+# Custom CSS Theme System: Periwinkle Background & Light Lilac Theme with Rubik & Soria Fonts
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.2rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #FF9933 0%, #FFFFFF 50%, #128807 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+    @import url('https://fonts.cdnfonts.com/css/soria');
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+    /* 1. COMPLETELY HIDE STREAMLIT TOP NAV BAR & SIDEBAR */
+    header[data-testid="stHeader"], [data-testid="stHeader"], div[data-testid="stToolbar"] {
+        display: none !important;
+        height: 0px !important;
+    }
+    [data-testid="stSidebar"], section[data-testid="stSidebar"] {
+        display: none !important;
+        width: 0px !important;
+    }
+    #MainMenu, footer {
+        visibility: hidden !important;
+        display: none !important;
+    }
+
+    /* Page container spacing */
+    .main .block-container {
+        max-width: 1350px;
+        padding-top: 1.0rem !important;
+        padding-bottom: 2.5rem !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+
+    /* 2. GLOBAL TYPOGRAPHY & PERIWINKLE BACKGROUND */
+    html, body, .stMarkdown, p, div, label, input, textarea, button {
+        font-family: 'Rubik', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    }
+    
+    h1, h2, h3, h4, .main-header, .soria-heading {
+        font-family: 'Soria', 'Playfair Display', Georgia, serif !important;
+    }
+
+    /* Soft Periwinkle Backdrop */
+    .stApp, .main, body {
+        background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 45%, #C7D2FE 100%) !important;
+        background-attachment: fixed !important;
+        color: #1E1B4B !important;
+    }
+
+    /* 3. HEADER & AGENT BRANDING */
+    .agent-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
         margin-bottom: 0.2rem;
     }
+    .main-header {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        background: linear-gradient(135deg, #5B21B6 0%, #7E22CE 40%, #A855F7 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
     .sub-header {
-        color: #8892B0;
+        color: #4338CA;
         font-size: 1.05rem;
-        margin-bottom: 1.5rem;
-    }
-    .agent-card {
-        background: #1E222D;
-        border: 1px solid #2E3440;
-        border-radius: 10px;
-        padding: 12px 18px;
-        margin-bottom: 10px;
-    }
-    .badge-high {
-        background-color: #059669;
-        color: white;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 0.85rem;
         font-weight: 600;
+        margin-bottom: 1.2rem;
+        font-family: 'Rubik', sans-serif !important;
+    }
+
+    /* Pulsating Light Lilac Status Badge */
+    @keyframes pulse-lilac {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(192, 132, 252, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(192, 132, 252, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(192, 132, 252, 0); }
+    }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        background: #F3E8FF;
+        border: 2px solid #C084FC;
+        color: #5B21B6;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(168, 85, 247, 0.15);
+    }
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        background-color: #A855F7;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+        animation: pulse-lilac 2s infinite;
+    }
+
+    /* 4. EXPANDABLE SETTINGS BAR - FIXES BLACK BACKGROUND & DARK PURPLE TEXT */
+    details[data-testid="stExpander"], [data-testid="stExpander"] {
+        background: #FFFFFF !important;
+        border: 2px solid #C084FC !important;
+        border-radius: 14px !important;
+        margin-bottom: 16px !important;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.12) !important;
+        overflow: hidden !important;
+    }
+
+    details[data-testid="stExpander"] summary, [data-testid="stExpander"] summary {
+        background: #F3E8FF !important; /* Soft light lilac header */
+        color: #5B21B6 !important;
+        font-weight: 700 !important;
+        font-size: 1rem !important;
+        padding: 12px 18px !important;
+        border-bottom: 2px solid #E9D5FF !important;
+    }
+
+    details[data-testid="stExpander"][open] summary, [data-testid="stExpander"][open] summary {
+        background: #E9D5FF !important; /* Richer light lilac when open */
+        color: #5B21B6 !important;
+        border-bottom: 2px solid #C084FC !important;
+    }
+
+    details[data-testid="stExpander"] summary:hover, [data-testid="stExpander"] summary:hover {
+        background: #E9D5FF !important;
+        color: #4C1D95 !important;
+    }
+
+    details[data-testid="stExpander"] summary *, [data-testid="stExpander"] summary * {
+        color: #5B21B6 !important;
+        font-weight: 700 !important;
+    }
+
+    /* Expander Details Container */
+    details[data-testid="stExpander"] [data-testid="stExpanderDetails"], [data-testid="stExpanderDetails"] {
+        background: #FFFFFF !important;
+        color: #1E1B4B !important;
+        padding: 18px !important;
+    }
+
+    [data-testid="stExpanderDetails"] p, [data-testid="stExpanderDetails"] span {
+        color: #1E1B4B !important;
+        font-family: 'Rubik', sans-serif !important;
+    }
+
+    [data-testid="stExpanderDetails"] label {
+        color: #5B21B6 !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+        margin-bottom: 6px !important;
+    }
+
+    /* 5. PRESET CONTAINER BAR */
+    .preset-container {
+        background: rgba(255, 255, 255, 0.92);
+        border: 2px solid #C084FC;
+        border-radius: 14px;
+        padding: 16px 20px;
+        margin-bottom: 1.8rem;
+        box-shadow: 0 8px 24px rgba(168, 85, 247, 0.1);
+        backdrop-filter: blur(10px);
+    }
+    .preset-title {
+        color: #5B21B6;
+        font-size: 0.92rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 10px;
+        font-family: 'Soria', 'Playfair Display', serif !important;
+    }
+
+    /* 6. GLASSMORPHISM PANELS & CARDS */
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.94);
+        border: 2px solid #C084FC;
+        border-radius: 16px;
+        padding: 22px;
+        margin-bottom: 16px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.08);
+        color: #1E1B4B;
+    }
+
+    /* Agent Timeline Log Cards */
+    .agent-log-card {
+        background: #F3E8FF;
+        border-left: 4px solid #A855F7;
+        border-top: 1px solid #E9D5FF;
+        border-right: 1px solid #E9D5FF;
+        border-bottom: 1px solid #E9D5FF;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 12px rgba(168, 85, 247, 0.06);
+    }
+    .agent-log-time {
+        color: #5B21B6;
+        font-weight: 800;
+        font-size: 0.82rem;
+        font-family: monospace !important;
+    }
+    .agent-log-name {
+        color: #9333EA;
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-left: 6px;
+        font-family: 'Rubik', sans-serif !important;
+    }
+
+    /* Match Score Badges (Lighter Lilac Violet) */
+    .badge-high {
+        background: linear-gradient(135deg, #A855F7 0%, #9333EA 100%);
+        color: white;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        font-family: 'Rubik', sans-serif !important;
     }
     .badge-medium {
-        background-color: #D97706;
+        background: linear-gradient(135deg, #C084FC 0%, #A855F7 100%);
         color: white;
-        padding: 4px 10px;
-        border-radius: 6px;
+        padding: 6px 14px;
+        border-radius: 20px;
         font-size: 0.85rem;
-        font-weight: 600;
+        font-weight: 700;
+        font-family: 'Rubik', sans-serif !important;
     }
     .badge-low {
-        background-color: #DC2626;
+        background: linear-gradient(135deg, #7E22CE 0%, #6B21A8 100%);
         color: white;
-        padding: 4px 10px;
-        border-radius: 6px;
+        padding: 6px 14px;
+        border-radius: 20px;
         font-size: 0.85rem;
-        font-weight: 600;
+        font-weight: 700;
+        font-family: 'Rubik', sans-serif !important;
     }
+
+    /* Metric Card Custom Container */
+    .metric-card {
+        background: #FFFFFF;
+        border-top: 4px solid #A855F7;
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+        border-left: 1px solid #E0E7FF;
+        border-right: 1px solid #E0E7FF;
+        border-bottom: 1px solid #E0E7FF;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.08);
+    }
+    .metric-label {
+        color: #4338CA;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
+        font-family: 'Rubik', sans-serif !important;
+    }
+    .metric-value {
+        color: #7E22CE;
+        font-size: 1.25rem;
+        font-weight: 800;
+        font-family: 'Soria', 'Playfair Display', serif !important;
+    }
+
+    /* Primary Recommended Standard Box - Bright Medium-Light Lilac Gradient */
+    .recommended-box {
+        background: linear-gradient(135deg, #6B21A8 0%, #8B5CF6 50%, #A855F7 100%);
+        color: #FFFFFF !important;
+        border: 2px solid #E9D5FF;
+        padding: 26px;
+        border-radius: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 12px 35px rgba(139, 92, 246, 0.25);
+    }
+
     .why-card {
-        background-color: #111827;
-        border-left: 4px solid #10B981;
-        padding: 12px 16px;
-        border-radius: 4px;
-        margin-top: 10px;
+        background: #FFFFFF;
+        border-left: 5px solid #A855F7;
+        border-top: 1px solid #E9D5FF;
+        border-right: 1px solid #E9D5FF;
+        border-bottom: 1px solid #E9D5FF;
+        padding: 18px 22px;
+        border-radius: 10px;
+        margin-top: 14px;
+        color: #1E1B4B;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.06);
     }
-    .why-not-card {
-        background-color: #18181B;
-        border-left: 4px solid #EF4444;
-        padding: 10px 14px;
-        border-radius: 4px;
-        margin-top: 8px;
-        font-size: 0.9rem;
+
+    /* 7. LIGHTER LILAC PURPLE BUTTONS */
+    .stButton > button {
+        background: linear-gradient(135deg, #C084FC 0%, #A855F7 100%) !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        border-radius: 10px !important;
+        font-family: 'Rubik', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+        padding: 8px 18px !important;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.28) !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    .stButton > button:hover {
+        background: linear-gradient(135deg, #A855F7 0%, #9333EA 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(168, 85, 247, 0.45) !important;
+        color: #FFFFFF !important;
+    }
+
+    /* Form Labels & Widget Labels */
+    label, label p, label[data-testid="stWidgetLabel"], label[data-testid="stWidgetLabel"] p, .stTextArea label, .stTextInput label {
+        color: #1E1B4B !important;
+        font-weight: 700 !important;
+        font-size: 1.02rem !important;
+        font-family: 'Rubik', sans-serif !important;
+        margin-bottom: 6px !important;
+    }
+
+    /* Inputs and Textareas */
+    .stTextArea textarea, .stTextInput input {
+        background-color: #FFFFFF !important;
+        color: #1E1B4B !important;
+        border: 2px solid #C084FC !important;
+        border-radius: 10px !important;
+        font-family: 'Rubik', sans-serif !important;
+    }
+    .stTextArea textarea:focus, .stTextInput input:focus {
+        border-color: #A855F7 !important;
+        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -97,128 +365,231 @@ if "input_text" not in st.session_state:
     st.session_state.input_text = ""
 
 
-# Header
-st.markdown('<div class="main-header">🇮🇳 BIS Product Compliance Advisor Agent</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">AI-Powered Preliminary Bureau of Indian Standards (BIS) Classification & Regulatory Matching</div>', unsafe_allow_html=True)
+# Top Header & Agent Status Bar
+st.markdown("""
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+    <div>
+        <div class="agent-brand">
+            <span style="font-size:2.4rem;">🤖</span>
+            <span class="main-header">BISense AI Agent</span>
+        </div>
+        <div class="sub-header">Autonomous Bureau of Indian Standards (BIS) Product Compliance & Regulatory Engine</div>
+    </div>
+    <div>
+        <div class="status-badge">
+            <span class="status-dot"></span>
+            Agent Online & Ready
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-# Sidebar: Config & Info
-with st.sidebar:
-    st.header("⚙️ Agent Settings")
-    api_key_input = st.text_input("LLM API Key (Optional)", type="password", help="Enter OpenAI or Gemini API key. If left blank, agent uses local heuristic fallback engine.")
+
+# Collapsible Agent Settings & Top Controls
+with st.expander("⚙️ Agent Settings & API Key Configuration", expanded=False):
+    st.markdown("""
+    Configure the backend execution model for the BISense Agent. If an API key is provided, the agent utilizes advanced LLM reasoning. If left empty, the agent operates on the local rule-based heuristic dataset engine.
+    """)
+    api_key_input = st.text_input(
+        "LLM API Key (OpenAI / Gemini)",
+        type="password",
+        placeholder="Enter API Key...",
+        help="Optional: Enables deep generative reasoning for complex non-standard product descriptions."
+    )
     if api_key_input:
         os.environ["LLM_API_KEY"] = api_key_input
+        st.success("API Key applied to runtime environment.")
 
-    st.markdown("---")
-    st.header("🎯 Preset Demo Scenarios")
-    
+
+# Quick Preset Scenarios Bar
+st.markdown('<div class="preset-container">', unsafe_allow_html=True)
+st.markdown('<div class="preset-title">🎯 Preset Product Evaluation Scenarios</div>', unsafe_allow_html=True)
+
+sc_col1, sc_col2, sc_col3, sc_col4, sc_col5 = st.columns(5)
+
+with sc_col1:
     if st.button("🧸 Scenario 1: Toys", use_container_width=True):
         st.session_state.input_text = "I manufacture plastic puzzles for children."
         st.session_state.state = workflow.create_initial_state(st.session_state.input_text)
         st.session_state.state = workflow.step(st.session_state.state)
         st.rerun()
 
+with sc_col2:
     if st.button("⚡ Scenario 2: Electronics", use_container_width=True):
         st.session_state.input_text = "I manufacture an electronic appliance for home use."
         st.session_state.state = workflow.create_initial_state(st.session_state.input_text)
         st.session_state.state = workflow.step(st.session_state.state)
         st.rerun()
 
+with sc_col3:
     if st.button("👕 Scenario 3: Textiles", use_container_width=True):
         st.session_state.input_text = "I manufacture cotton garments."
         st.session_state.state = workflow.create_initial_state(st.session_state.input_text)
         st.session_state.state = workflow.step(st.session_state.state)
         st.rerun()
 
+with sc_col4:
     if st.button("🍱 Scenario 4: Food Packaging", use_container_width=True):
         st.session_state.input_text = "I manufacture plastic containers used for food."
         st.session_state.state = workflow.create_initial_state(st.session_state.input_text)
         st.session_state.state = workflow.step(st.session_state.state)
         st.rerun()
 
+with sc_col5:
     if st.button("❓ Scenario 5: Vague Input", use_container_width=True):
         st.session_state.input_text = "I make a product."
         st.session_state.state = workflow.create_initial_state(st.session_state.input_text)
         st.session_state.state = workflow.step(st.session_state.state)
         st.rerun()
 
-    st.markdown("---")
-    st.caption("Hackathon MVP • Powered by LangGraph & Pydantic")
+st.markdown('</div>', unsafe_allow_html=True)
 
 
-# Main Input Area
-col_left, col_right = st.columns([1.1, 0.9])
+# Main Interactive Body: Split Layout (Product Input & Agent Clarifications vs Agent Execution Feed)
+col_left, col_right = st.columns([1.1, 0.9], gap="medium")
 
 with col_left:
-    st.subheader("1. Describe Your Product")
+    st.markdown("""
+    <h3 style="font-size: 1.4rem; color: #5B21B6; margin-bottom: 8px;">
+        1. Product Information Input
+    </h3>
+    """, unsafe_allow_html=True)
+    
     product_desc = st.text_area(
-        "What product do you manufacture in India?",
+        "Describe your manufactured product in detail:",
         value=st.session_state.input_text,
-        placeholder="e.g. I manufacture plastic puzzles for children, or LED light bulbs, or cotton surgical face masks...",
-        height=100
+        placeholder="e.g., I manufacture plastic puzzles for children under 3 years old, or LED lighting apparatus, or surgical face masks...",
+        height=110,
+        key="product_desc_textarea"
     )
 
-    if st.button("🚀 Start Compliance Assessment", type="primary", use_container_width=True):
-        if not product_desc.strip():
-            st.warning("Please enter a product description first.")
-        else:
-            st.session_state.input_text = product_desc
-            st.session_state.state = workflow.create_initial_state(product_desc)
-            st.session_state.state = workflow.step(st.session_state.state)
+    col_btn1, col_btn2 = st.columns([2, 1])
+    with col_btn1:
+        if st.button("🚀 Run Agent Compliance Assessment", type="primary", use_container_width=True):
+            if not product_desc.strip():
+                st.warning("Please enter a product description first.")
+            else:
+                st.session_state.input_text = product_desc
+                st.session_state.state = workflow.create_initial_state(product_desc)
+                st.session_state.state = workflow.step(st.session_state.state)
+                st.rerun()
+    with col_btn2:
+        if st.button("🔄 Reset Agent", use_container_width=True):
+            st.session_state.input_text = ""
+            st.session_state.state = None
             st.rerun()
 
     state = st.session_state.state
 
-    # Clarification Section
+    # Clarification Section Card
     if state and state.get("current_question"):
-        st.markdown("---")
-        st.subheader("❓ Clarification Required")
-        st.info(f"**Agent Question ({state.get('clarification_count', 0) + 1}/{MAX_QUESTIONS}):**\n\n{state['current_question']}")
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style="background: #F3E8FF; border: 2px solid #A855F7; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px rgba(168, 85, 247, 0.12);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span class="soria-heading" style="color: #5B21B6; font-weight: 700; font-size: 1.2rem;">❓ Agent Clarification Request</span>
+                <span style="background: #A855F7; color: #FFFFFF; padding: 4px 12px; border-radius: 14px; font-size: 0.8rem; font-weight: 700;">Question {state.get('clarification_count', 0) + 1} of {MAX_QUESTIONS}</span>
+            </div>
+            <div style="color: #1E1B4B; font-size: 1rem; margin-bottom: 14px; background: #FFFFFF; padding: 14px; border-radius: 10px; border: 1px solid #E9D5FF; font-family: 'Rubik', sans-serif;">
+                {state['current_question']}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-        user_ans = st.text_input("Your Answer:", key="clarification_answer_input", placeholder="Type your response here...")
+        user_ans = st.text_input("Your Answer:", key="clarification_answer_input", placeholder="Type your response to assist the agent...")
         
-        col_ans1, col_ans2 = st.columns([1, 1])
+        col_ans1, col_ans2 = st.columns([1.2, 0.8])
         with col_ans1:
-            if st.button("Submit Answer ➔", type="primary", use_container_width=True):
+            if st.button("Submit Answer to Agent ➔", type="primary", use_container_width=True):
                 if user_ans.strip():
                     st.session_state.state = workflow.answer_question(state, user_ans)
                     st.rerun()
                 else:
-                    st.warning("Please enter an answer or skip.")
+                    st.warning("Please type an answer or click Skip.")
         with col_ans2:
             if st.button("Skip Question", use_container_width=True):
                 st.session_state.state = workflow.answer_question(state, "Not specified")
                 st.rerun()
 
+
 with col_right:
-    st.subheader("🤖 Agent Activity Log")
+    st.markdown("""
+    <h3 style="font-size: 1.4rem; color: #5B21B6; margin-bottom: 8px;">
+        🤖 Agent Execution & Thought Feed
+    </h3>
+    """, unsafe_allow_html=True)
+
     if not state:
-        st.info("Start an assessment to view live agent orchestrations.")
+        st.markdown("""
+        <div class="glass-panel" style="text-align: center; color: #4338CA; padding: 35px 20px;">
+            <span style="font-size: 2.2rem;">🧠</span><br>
+            <div style="margin-top: 10px; font-weight: 700; font-family: 'Soria', 'Playfair Display', serif; font-size: 1.2rem; color: #5B21B6;">Awaiting product input...</div>
+            <div style="font-size: 0.88rem; color: #4338CA; margin-top: 4px;">Click a scenario above or describe your product to view live agent reasoning.</div>
+        </div>
+        """, unsafe_allow_html=True)
     else:
         logs = state.get("agent_logs", [])
+        st.markdown('<div style="max-height: 420px; overflow-y: auto; padding-right: 5px;">', unsafe_allow_html=True)
         for log in logs:
             status_icon = "✓" if log["status"] == "completed" else "ℹ️" if log["status"] == "info" else "⟳"
             st.markdown(f"""
-            <div class="agent-card">
-                <span style="color:#60A5FA; font-weight:bold;">[{log['timestamp']}] {status_icon} {log['agent_name']}</span><br/>
-                <span style="color:#D1D5DB; font-size:0.9rem;">{log['message']}</span>
+            <div class="agent-log-card">
+                <div>
+                    <span class="agent-log-time">[{log['timestamp']}]</span>
+                    <span class="agent-log-name">{status_icon} {log['agent_name']}</span>
+                </div>
+                <div style="color: #1E1B4B; font-size: 0.92rem; margin-top: 4px; line-height: 1.4; font-family: 'Rubik', sans-serif;">
+                    {log['message']}
+                </div>
             </div>
             """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
 
-# Results Display Area
+# Results Display Area (Triggered once agent reaches recommendation phase)
 if state and not state.get("current_question"):
     st.markdown("---")
-    st.header("📋 Product Compliance Profile & Recommendations")
+    st.markdown("""
+    <h2 class="soria-heading" style="font-size: 1.8rem; background: linear-gradient(135deg, #5B21B6 0%, #7E22CE 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px;">
+        📋 Compliance Profile & BIS Standard Recommendations
+    </h2>
+    """, unsafe_allow_html=True)
 
-    # Profile Metrics Cards
+    # Executive Profile Metrics Cards
     p1, p2, p3, p4 = st.columns(4)
-    p1.metric("Category", state.get("category", "General"))
-    p2.metric("Subcategory", state.get("subcategory", "Unspecified"))
-    p3.metric("Material", state.get("material", "Unspecified"))
     electric_val = state.get("electric")
-    p4.metric("Power Type", "Electric" if electric_val is True else "Non-Electric" if electric_val is False else "Unknown")
+    power_str = "Electric" if electric_val is True else "Non-Electric" if electric_val is False else "Unknown"
 
-    st.markdown("---")
+    with p1:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">Category</div>
+            <div class="metric-value">{state.get("category", "General")}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with p2:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">Subcategory</div>
+            <div class="metric-value">{state.get("subcategory", "Unspecified")}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with p3:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">Material</div>
+            <div class="metric-value">{state.get("material", "Unspecified")}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with p4:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">Power Type</div>
+            <div class="metric-value">{power_str}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
 
     # Recommendation Results
     rec_dict = state.get("recommended_standards")
@@ -226,37 +597,41 @@ if state and not state.get("current_question"):
         rec = RecommendationResult(**rec_dict)
         primary = rec.primary_standard
 
-        col_rec1, col_rec2 = st.columns([1.2, 0.8])
+        col_rec1, col_rec2 = st.columns([1.2, 0.8], gap="medium")
 
         with col_rec1:
-            st.subheader("🌟 Primary Recommended Standard")
+            st.markdown('<h3 style="font-size: 1.3rem; color: #5B21B6; margin-bottom: 10px;">🌟 Primary Recommended Standard</h3>', unsafe_allow_html=True)
             if primary:
-                strength_color = "badge-high" if rec.match_strength == "High" else "badge-medium" if rec.match_strength == "Medium" else "badge-low"
+                badge_class = "badge-high" if rec.match_strength == "High" else "badge-medium" if rec.match_strength == "Medium" else "badge-low"
                 
                 st.markdown(f"""
-                <div style="background:#1E293B; padding:20px; border-radius:12px; border:1px solid #334155;">
-                    <div style="display:flex; justify-between; align-items:center;">
-                        <h3 style="margin:0; color:#38BDF8;">{primary.standard_code}</h3>
-                        <span class="{strength_color}">Match: {rec.match_strength}</span>
+                <div class="recommended-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2 style="margin:0; color:#FFFFFF; font-size:1.7rem; font-weight:800; font-family: 'Soria', 'Playfair Display', serif;">{primary.standard_code}</h2>
+                        <span class="{badge_class}">Match Score: {rec.match_strength}</span>
                     </div>
-                    <h4 style="color:#F3F4F6; margin-top:8px;">{primary.title}</h4>
-                    <p style="color:#9CA3AF; font-size:0.95rem;">{primary.description}</p>
-                    <a href="{primary.source_url}" target="_blank" style="color:#60A5FA; text-decoration:none; font-weight:600;">🔗 View Official BIS Source ➔</a>
+                    <h4 style="color:#F3E8FF; margin-top:10px; font-size:1.15rem;">{primary.title}</h4>
+                    <p style="color:#E9D5FF; font-size:0.98rem; line-height: 1.55; margin-top: 8px; font-family: 'Rubik', sans-serif;">{primary.description}</p>
+                    <div style="margin-top: 16px;">
+                        <a href="{primary.source_url}" target="_blank" style="background: #FFFFFF; color: #5B21B6; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 0.9rem; display: inline-block;">🔗 Access Official BIS Documentation ➔</a>
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
 
-                st.markdown('<div class="why-card">', unsafe_allow_html=True)
-                st.markdown("#### 💡 Why This Standard?")
+                st.markdown("""
+                <div class="why-card">
+                    <div class="soria-heading" style="color:#5B21B6; font-weight:700; font-size:1.15rem; margin-bottom:8px;">💡 Agent Match Reasoning & Evidence</div>
+                """, unsafe_allow_html=True)
                 st.write(rec.reason)
                 for ev in rec.evidence:
                     st.write(f"- {ev}")
                 st.markdown('</div>', unsafe_allow_html=True)
 
             else:
-                st.warning("No suitable standard matched in the dataset.")
+                st.warning("No candidate standard matched the specified product parameters.")
 
         with col_rec2:
-            st.subheader("🔍 Why Not Selected? (Excluded Candidates)")
+            st.markdown('<h3 style="font-size: 1.3rem; color: #5B21B6; margin-bottom: 10px;">🔍 Excluded Standards Analysis</h3>', unsafe_allow_html=True)
             if rec.excluded_candidates:
                 for excl in rec.excluded_candidates:
                     with st.expander(f"❌ {excl['standard_code']} — {excl['title']}"):
@@ -265,21 +640,31 @@ if state and not state.get("current_question"):
                 st.info("No candidate standards were explicitly excluded.")
 
             if rec.additional_standards:
-                st.subheader("📚 Additional Relevant Standards")
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown('<h4 style="font-size: 1.15rem; color: #5B21B6; margin-bottom: 8px;">📚 Additional Relevant Standards</h4>', unsafe_allow_html=True)
                 for add in rec.additional_standards:
                     st.markdown(f"- **[{add.standard_code}]({add.source_url})**: {add.title}")
 
-    # Full Compliance Report Tab / Accordion
+    # Full Generated Compliance Report Section
     st.markdown("---")
-    st.subheader("📄 Generated BIS Compliance Report")
+    st.markdown('<h3 style="font-size: 1.4rem; color: #5B21B6; margin-bottom: 12px;">📄 Complete BIS Compliance Advisory Report</h3>', unsafe_allow_html=True)
     
     report_text = state.get("final_report", "")
-    st.markdown(report_text)
+    with st.expander("View Full Markdown Compliance Report", expanded=True):
+        st.markdown(report_text)
 
     st.download_button(
-        label="📥 Download Compliance Report (Markdown)",
+        label="📥 Download Full Compliance Advisory Report (.md)",
         data=report_text,
         file_name=f"BIS_Compliance_Report_{state.get('category','Product')}.md",
         mime="text/markdown",
         use_container_width=True
     )
+
+# Footer
+st.markdown("---")
+st.markdown("""
+<div style="text-align: center; color: #4338CA; font-size: 0.88rem; padding-top: 10px; font-weight: 600;">
+    🤖 BISense AI Compliance Agent • Powered by LangGraph, Pydantic & Streamlit • Hackathon Edition
+</div>
+""", unsafe_allow_html=True)
